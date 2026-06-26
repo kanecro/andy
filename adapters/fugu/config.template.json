@@ -1,0 +1,39 @@
+{
+  "name": "andy",
+  "version": "0.2.0",
+  "entrypoint": "AGENTS.md",
+  "entrypoints": {
+    "canonical": "AGENTS.md",
+    "claude": "CLAUDE.md",
+    "gemini": "GEMINI.md"
+  },
+  "core": {
+    "principles": "core/principles.md",
+    "workflows": "core/workflows",
+    "roles": "core/roles",
+    "policies": "core/policies",
+    "skills": "core/skills",
+    "artifactSchemas": "core/artifact-schemas",
+    "guardrails": "core/guardrails",
+    "rulePrecedence": "core/policies/rule-precedence-policy.md",
+    "immutableRules": "core/policies/immutable-rules.md",
+    "projectOverrides": "core/policies/project-overrides-policy.md"
+  },
+  "modelSelection": {
+    "mode": "delegate_to_runtime",
+    "useCapabilityProfiles": true,
+    "avoidHardcodedModelNames": true
+  },
+  "installation": {
+    "defaultFuguHome": "~/.fugu",
+    "activeHarnessSymlink": "~/.fugu/active-harness",
+    "optionalGlobalShims": {
+      "codex": "~/.codex/AGENTS.md",
+      "claude": "~/.claude/CLAUDE.md",
+      "gemini": "~/.gemini/GEMINI.md"
+    }
+  },
+  "templates": {
+    "project": "templates/project"
+  }
+}
