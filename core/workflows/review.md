@@ -11,6 +11,10 @@ Review implementation against specification, design intent, quality, and risk.
 - Changed file summary
 - Test/static analysis results
 
+## Outputs
+
+- `openspec/changes/<change-name>/reviews/review-summary.md`
+
 ## Roles
 
 - spec-compliance-reviewer

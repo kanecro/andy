@@ -138,3 +138,114 @@ optional global shims も削除する場合:
 - Claude-style runtime では `CLAUDE.md` が `AGENTS.md` を import します。
 - Gemini-style runtime では `GEMINI.md` が `AGENTS.md` を import します。
 - Fugu では `adapters/fugu/config.template.json` の `entrypoint` が `AGENTS.md` です。
+
+### 基本の呼び出し方
+
+andy は特定ランタイムの slash command ではなく、`core/workflows/` 配下の workflow runbook をエージェントに読ませて使います。
+
+例:
+
+```text
+AGENTS.md を正本として読み、core/workflows/brainstorm.md に従って、次のアイデアを要件整理してください:
+「通知機能を追加したい」
+```
+
+```text
+AGENTS.md と core/workflows/spec.md に従って、openspec/changes/add-notifications/proposal.md から仕様・設計・タスクを作成してください。
+```
+
+```text
+AGENTS.md と core/workflows/implement.md に従って、承認済みの tasks.md を実装してください。並列化できる場合はworkerごとにwrite scopeを分けてください。
+```
+
+### 標準ワークフロー
+
+```text
+brainstorm → spec → implement → review → test → compound
+```
+
+| Phase | Runbook | 目的 | 主な出力 |
+|---|---|---|---|
+| brainstorm | `core/workflows/brainstorm.md` | アイデアを小さく検証可能な提案にする | `openspec/changes/<change-name>/proposal.md` |
+| spec | `core/workflows/spec.md` | 提案を仕様・設計・タスクへ落とす | `design.md`, `tasks.md`, `specs/<feature>/delta-spec.md`, `traceability.md` |
+| implement | `core/workflows/implement.md` | 承認済みタスクを最小差分・TDDで実装する | 実装コード、テスト、変更サマリー |
+| review | `core/workflows/review.md` | 仕様準拠・品質・リスクをレビューする | `reviews/review-summary.md` |
+| test | `core/workflows/test.md` | L1/L2/L3の検証を実行し証拠を残す | テスト結果、検証ログ |
+| compound | `core/workflows/compound.md` | 学びを蓄積し次回に還元する | `docs/compound/YYYY-MM-DD-<topic>.md` |
+| ship | `core/workflows/ship.md` | approval gate付きで一連の流れを実行する | 完了レポート |
+
+### brainstorm の使い方
+
+`brainstorm` は、まだ曖昧なアイデアを proposal にする入口です。
+
+依頼例:
+
+```text
+AGENTS.md を読み、core/workflows/brainstorm.md に従ってbrainstormしてください。
+テーマ: ユーザーがメール通知を受け取れるようにしたい
+```
+
+エージェントは以下を行います。
+
+1. 一度に1つずつ質問する。
+2. 可能なら選択肢形式で質問する。
+3. YAGNIでスコープ外を明確にする。
+4. `story-quality-gate` の観点でユーザーストーリーを確認する。
+5. 各ストーリーの検証観点を確認する。
+6. `openspec/changes/<change-name>/proposal.md` を作成する。
+7. `spec` に進む前にユーザー承認を取る。
+
+出力される proposal の基本構造:
+
+```markdown
+# <change-name> Proposal
+
+## Intent
+
+## User Stories
+
+## Scope
+
+## Out of Scope
+
+## Technical Considerations
+
+## Open Questions
+```
+
+### spec 以降の使い方
+
+brainstorm 後、ユーザーが proposal を承認したら `spec` に進みます。
+
+```text
+core/workflows/spec.md に従って、openspec/changes/<change-name>/proposal.md から design.md / tasks.md / delta-spec.md / traceability.md を作成してください。
+```
+
+spec 承認後は、実装以降を進めます。
+
+```text
+core/workflows/implement.md に従って、openspec/changes/<change-name>/tasks.md を実装してください。
+```
+
+```text
+core/workflows/review.md に従って、今回の変更を仕様準拠・品質・リスクの観点でレビューしてください。
+```
+
+```text
+core/workflows/test.md に従って、L1/L2/L3の検証を実行し、結果を証拠つきで報告してください。
+```
+
+```text
+core/workflows/compound.md に従って、今回の学びを docs/compound/ に記録してください。
+```
+
+### プロジェクトごとの上書き
+
+プロジェクトに andy を適用する場合は、`templates/project/` を参考にしてプロジェクト側へ以下を置きます。
+
+```text
+<project>/AGENTS.md
+<project>/.andy/overrides.md
+```
+
+プロジェクト側では、テストコマンド・ディレクトリ構成・ドキュメント同期・ドメイン固有ルールを上書きできます。ただし、`core/policies/immutable-rules.md` の不変ルールは弱められません。
