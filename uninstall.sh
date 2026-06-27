@@ -2,7 +2,7 @@
 set -euo pipefail
 
 FORCE=false
-REMOVE_CODEX=false
+REMOVE_CODEX=true
 REMOVE_CLAUDE=false
 REMOVE_GEMINI=false
 FUGU_HOME="${FUGU_HOME:-$HOME/.fugu}"
@@ -14,16 +14,17 @@ usage() {
   cat <<EOF
 Usage: $(basename "$0") [OPTIONS]
 
-Uninstall andy symlinks from \${FUGU_HOME:-~/.fugu}.
-Optional global shims are removed only when requested.
+Uninstall andy symlinks from \${FUGU_HOME:-~/.fugu} and \${CODEX_HOME:-~/.codex}.
+Claude and Gemini global shims are removed only when requested.
 
 Options:
   -y, --yes          Skip confirmation prompts
   --target DIR       Override FUGU_HOME for this uninstall
-  --with-codex       Also remove ~/.codex/AGENTS.md if it is an andy symlink
+  --keep-codex       Keep ~/.codex/AGENTS.md even if it is an andy symlink
+  --with-codex       Remove ~/.codex/AGENTS.md if it is an andy symlink (default)
   --with-claude      Also remove ~/.claude/CLAUDE.md if it is an andy symlink
   --with-gemini      Also remove ~/.gemini/GEMINI.md if it is an andy symlink
-  --all-agents       Enable all optional global shim removals
+  --all-agents       Enable all global shim removals
   -h, --help         Show this help
 EOF
 }
@@ -32,6 +33,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     -y|--yes) FORCE=true; shift ;;
     --target) FUGU_HOME="$2"; shift 2 ;;
+    --keep-codex) REMOVE_CODEX=false; shift ;;
     --with-codex) REMOVE_CODEX=true; shift ;;
     --with-claude) REMOVE_CLAUDE=true; shift ;;
     --with-gemini) REMOVE_GEMINI=true; shift ;;
@@ -56,7 +58,7 @@ ANDY_ROOT="$SCRIPT_DIR"
 TARGET_DIR="$FUGU_HOME/harnesses/andy"
 
 if [[ ! -d "$FUGU_HOME" ]]; then
-  info "FUGU_HOME" "not found; checking optional globals only"
+  info "FUGU_HOME" "not found; checking Codex/global shims only"
 else
   if ! confirm "Remove andy symlinks from $FUGU_HOME?"; then
     echo "Cancelled."

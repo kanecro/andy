@@ -3,7 +3,7 @@ set -euo pipefail
 
 FORCE=false
 SET_ACTIVE=true
-INSTALL_CODEX=false
+INSTALL_CODEX=true
 INSTALL_CLAUDE=false
 INSTALL_GEMINI=false
 FUGU_HOME="${FUGU_HOME:-$HOME/.fugu}"
@@ -16,16 +16,19 @@ usage() {
 Usage: $(basename "$0") [OPTIONS]
 
 Install andy harness symlinks.
-Default install target is \${FUGU_HOME:-~/.fugu}; other agent homes are opt-in.
+Default install targets are \${FUGU_HOME:-~/.fugu} and \${CODEX_HOME:-~/.codex}.
+This makes the harness active for Codex/codex-fugu sessions by default.
+Claude and Gemini global shims are opt-in.
 
 Options:
   -y, --yes          Skip confirmation prompts
   --no-active        Do not update ~/.fugu/active-harness
+  --no-codex         Do not link ~/.codex/AGENTS.md
   --target DIR       Override FUGU_HOME for this install
-  --with-codex       Also link ~/.codex/AGENTS.md
+  --with-codex       Link ~/.codex/AGENTS.md (default; kept for compatibility)
   --with-claude      Also link ~/.claude/CLAUDE.md
   --with-gemini      Also link ~/.gemini/GEMINI.md
-  --all-agents       Enable all optional global shims
+  --all-agents       Enable all global shims
   -h, --help         Show this help
 EOF
 }
@@ -34,6 +37,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     -y|--yes) FORCE=true; shift ;;
     --no-active) SET_ACTIVE=false; shift ;;
+    --no-codex) INSTALL_CODEX=false; shift ;;
     --target) FUGU_HOME="$2"; shift 2 ;;
     --with-codex) INSTALL_CODEX=true; shift ;;
     --with-claude) INSTALL_CLAUDE=true; shift ;;

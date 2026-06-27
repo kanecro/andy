@@ -79,6 +79,18 @@ ENTRYPOINT_PY
 )"
 if [[ "$entrypoint" == "AGENTS.md" ]]; then ok "Fugu entrypoint is AGENTS.md"; else fail "Fugu entrypoint is $entrypoint"; fi
 
+codex_entrypoint="$(ROOT_FOR_PY="$ROOT" python3 - <<'CODEX_ENTRYPOINT_PY'
+import json, os
+from pathlib import Path
+p = Path(os.environ['ROOT_FOR_PY']) / 'adapters/fugu/config.template.json'
+print(json.loads(p.read_text()).get('installation', {}).get('defaultCodexEntrypoint'))
+CODEX_ENTRYPOINT_PY
+)"
+if [[ "$codex_entrypoint" == "~/.codex/AGENTS.md" ]]; then ok "Codex default entrypoint is ~/.codex/AGENTS.md"; else fail "Codex default entrypoint is $codex_entrypoint"; fi
+
+if grep -q '^INSTALL_CODEX=true$' "$ROOT/install.sh"; then ok "install.sh enables Codex by default"; else fail "install.sh does not enable Codex by default"; fi
+if grep -q '^REMOVE_CODEX=true$' "$ROOT/uninstall.sh"; then ok "uninstall.sh removes Codex shim by default"; else fail "uninstall.sh does not remove Codex shim by default"; fi
+
 if [[ ! -x "$ROOT/install.sh" ]]; then fail "install.sh is not executable"; fi
 if [[ ! -x "$ROOT/uninstall.sh" ]]; then fail "uninstall.sh is not executable"; fi
 

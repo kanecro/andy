@@ -26,9 +26,9 @@
   },
   "installation": {
     "defaultFuguHome": "~/.fugu",
+    "defaultCodexEntrypoint": "~/.codex/AGENTS.md",
     "activeHarnessSymlink": "~/.fugu/active-harness",
     "optionalGlobalShims": {
-      "codex": "~/.codex/AGENTS.md",
       "claude": "~/.claude/CLAUDE.md",
       "gemini": "~/.gemini/GEMINI.md"
     }
