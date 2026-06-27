@@ -52,7 +52,7 @@ andy/
 ├── AGENTS.md                       # canonical agent entrypoint
 ├── CLAUDE.md                       # Claude-style shim → AGENTS.md
 ├── GEMINI.md                       # Gemini-style shim → AGENTS.md
-├── install.sh                      # ~/.fugu への基本インストール + optional global shims
+├── install.sh                      # ~/.fugu + ~/.codex への基本インストール
 ├── uninstall.sh                    # symlink uninstall
 ├── core/                           # ランタイム非依存のハーネス本体
 │   ├── principles.md
@@ -76,7 +76,8 @@ andy/
 
 ## インストール
 
-安全なデフォルトでは、`${FUGU_HOME:-$HOME/.fugu}` だけに symlink を作成します。
+デフォルトでは、`${FUGU_HOME:-$HOME/.fugu}` にハーネス本体を配置し、`${CODEX_HOME:-$HOME/.codex}/AGENTS.md` にも symlink を作成します。
+これにより `codex` / `codex-fugu` セッションで andy の `AGENTS.md` が読み込まれる状態にします。
 
 ```bash
 cd /Users/kaneshiro/Projects/github.com/kanecro/andy
@@ -93,6 +94,9 @@ cd /Users/kaneshiro/Projects/github.com/kanecro/andy
 ├── GEMINI.md -> harnesses/andy/GEMINI.md
 ├── andy.config.template.json -> harnesses/andy/adapters/fugu/config.template.json
 └── active-harness -> harnesses/andy
+
+~/.codex/
+└── AGENTS.md -> ~/.fugu/harnesses/andy/AGENTS.md
 ```
 
 既存ファイルがある場合は、確認のうえ `~/.fugu/backups/andy-YYYYMMDD-HHMMSS/` に退避します。CIや非対話で使う場合は `-y` を付けてください。
@@ -101,15 +105,20 @@ cd /Users/kaneshiro/Projects/github.com/kanecro/andy
 ./install.sh -y
 ```
 
-## Optional: 各エージェントのグローバル入口にも入れる
-
-既存の個別エージェント設定と衝突し得るため、デフォルトでは `~/.codex` / `~/.claude` / `~/.gemini` には触りません。必要な場合だけ明示します。
+Codex 側に触れたくない場合だけ `--no-codex` を指定します。
 
 ```bash
-./install.sh --with-codex   # ~/.codex/AGENTS.md
+./install.sh --no-codex
+```
+
+## Optional: Claude / Gemini のグローバル入口にも入れる
+
+既存の個別エージェント設定と衝突し得るため、デフォルトでは `~/.claude` / `~/.gemini` には触りません。必要な場合だけ明示します。
+
+```bash
 ./install.sh --with-claude  # ~/.claude/CLAUDE.md
 ./install.sh --with-gemini  # ~/.gemini/GEMINI.md
-./install.sh --all-agents   # 上記すべて
+./install.sh --all-agents   # Codex / Claude / Gemini すべて
 ```
 
 ## アンインストール
@@ -118,9 +127,15 @@ cd /Users/kaneshiro/Projects/github.com/kanecro/andy
 ./uninstall.sh
 ```
 
-andy が作成した symlink のみ削除します。`~/.fugu/config.json` などのユーザー設定は削除しません。
+andy が作成した symlink のみ削除します。デフォルトでは `~/.fugu` 側と `~/.codex/AGENTS.md` を削除します。`~/.fugu/config.json` などのユーザー設定は削除しません。
 
-optional global shims も削除する場合:
+Codex 側の symlink を残したい場合:
+
+```bash
+./uninstall.sh --keep-codex
+```
+
+Claude / Gemini の global shims も削除する場合:
 
 ```bash
 ./uninstall.sh --all-agents

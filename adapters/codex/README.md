@@ -5,11 +5,13 @@
 ## Recommended use
 
 - Keep `AGENTS.md` at the repository root.
-- For user-level installation, optionally symlink it to `${CODEX_HOME:-~/.codex}/AGENTS.md` with:
+- For user-level installation, `./install.sh` symlinks it to `${CODEX_HOME:-~/.codex}/AGENTS.md` by default so Codex/codex-fugu sessions can load the harness:
 
 ```bash
-./install.sh --with-codex
+./install.sh
 ```
+
+Use `./install.sh --no-codex` only when you intentionally do not want to modify Codex's global entrypoint.
 
 ## Loading policy
 
