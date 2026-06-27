@@ -2,42 +2,36 @@
 set -euo pipefail
 
 FORCE=false
-REMOVE_CODEX=true
 REMOVE_CLAUDE=false
 REMOVE_GEMINI=false
-FUGU_HOME="${FUGU_HOME:-$HOME/.fugu}"
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 CLAUDE_HOME="${CLAUDE_HOME:-$HOME/.claude}"
 GEMINI_HOME="${GEMINI_HOME:-$HOME/.gemini}"
 
 usage() {
-  cat <<EOF
+  cat <<EOF_USAGE
 Usage: $(basename "$0") [OPTIONS]
 
-Uninstall andy symlinks from \${FUGU_HOME:-~/.fugu} and \${CODEX_HOME:-~/.codex}.
+Uninstall andy symlinks from \${CODEX_HOME:-~/.codex}.
 Claude and Gemini global shims are removed only when requested.
 
 Options:
   -y, --yes          Skip confirmation prompts
-  --target DIR       Override FUGU_HOME for this uninstall
-  --keep-codex       Keep ~/.codex/AGENTS.md even if it is an andy symlink
-  --with-codex       Remove ~/.codex/AGENTS.md if it is an andy symlink (default)
+  --target DIR       Override CODEX_HOME for this uninstall
   --with-claude      Also remove ~/.claude/CLAUDE.md if it is an andy symlink
   --with-gemini      Also remove ~/.gemini/GEMINI.md if it is an andy symlink
-  --all-agents       Enable all global shim removals
+  --all-agents       Enable Claude and Gemini shim removals too
   -h, --help         Show this help
-EOF
+EOF_USAGE
 }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -y|--yes) FORCE=true; shift ;;
-    --target) FUGU_HOME="$2"; shift 2 ;;
-    --keep-codex) REMOVE_CODEX=false; shift ;;
-    --with-codex) REMOVE_CODEX=true; shift ;;
+    --target) CODEX_HOME="$2"; shift 2 ;;
     --with-claude) REMOVE_CLAUDE=true; shift ;;
     --with-gemini) REMOVE_GEMINI=true; shift ;;
-    --all-agents) REMOVE_CODEX=true; REMOVE_CLAUDE=true; REMOVE_GEMINI=true; shift ;;
+    --all-agents) REMOVE_CLAUDE=true; REMOVE_GEMINI=true; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown option: $1"; usage; exit 1 ;;
   esac
@@ -55,12 +49,12 @@ info() { printf '\033[34m[INFO]\033[0m %-34s %s\n' "$1" "$2"; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 ANDY_ROOT="$SCRIPT_DIR"
-TARGET_DIR="$FUGU_HOME/harnesses/andy"
+TARGET_DIR="$CODEX_HOME/harnesses/andy"
 
-if [[ ! -d "$FUGU_HOME" ]]; then
-  info "FUGU_HOME" "not found; checking Codex/global shims only"
+if [[ ! -d "$CODEX_HOME" ]]; then
+  info "CODEX_HOME" "not found; checking optional globals only"
 else
-  if ! confirm "Remove andy symlinks from $FUGU_HOME?"; then
+  if ! confirm "Remove andy symlinks from $CODEX_HOME?"; then
     echo "Cancelled."
     exit 0
   fi
@@ -82,18 +76,13 @@ remove_link_if_matches() {
   fi
 }
 
-remove_link_if_matches "$FUGU_HOME/AGENTS.md" "$TARGET_DIR/AGENTS.md" "Fugu AGENTS.md"
-remove_link_if_matches "$FUGU_HOME/CLAUDE.md" "$TARGET_DIR/CLAUDE.md" "Fugu CLAUDE.md"
-remove_link_if_matches "$FUGU_HOME/GEMINI.md" "$TARGET_DIR/GEMINI.md" "Fugu GEMINI.md"
-remove_link_if_matches "$FUGU_HOME/andy.config.template.json" "$TARGET_DIR/adapters/fugu/config.template.json" "config template"
-remove_link_if_matches "$FUGU_HOME/active-harness" "$TARGET_DIR" "active-harness"
+remove_link_if_matches "$CODEX_HOME/AGENTS.md" "$TARGET_DIR/AGENTS.md" "Codex AGENTS.md"
+remove_link_if_matches "$CODEX_HOME/andy.config.template.json" "$TARGET_DIR/adapters/fugu/config.template.json" "config template"
+remove_link_if_matches "$CODEX_HOME/active-harness" "$TARGET_DIR" "active-harness"
 remove_link_if_matches "$TARGET_DIR" "$ANDY_ROOT" "harnesses/andy"
 LEGACY_ENTRYPOINT="andy"".md"
-remove_link_if_matches "$FUGU_HOME/$LEGACY_ENTRYPOINT" "$TARGET_DIR/$LEGACY_ENTRYPOINT" "legacy entrypoint"
+remove_link_if_matches "$CODEX_HOME/$LEGACY_ENTRYPOINT" "$TARGET_DIR/$LEGACY_ENTRYPOINT" "legacy entrypoint"
 
-if $REMOVE_CODEX; then
-  remove_link_if_matches "$CODEX_HOME/AGENTS.md" "$TARGET_DIR/AGENTS.md" "Codex AGENTS.md"
-fi
 if $REMOVE_CLAUDE; then
   remove_link_if_matches "$CLAUDE_HOME/CLAUDE.md" "$TARGET_DIR/CLAUDE.md" "Claude CLAUDE.md"
 fi
@@ -101,5 +90,5 @@ if $REMOVE_GEMINI; then
   remove_link_if_matches "$GEMINI_HOME/GEMINI.md" "$TARGET_DIR/GEMINI.md" "Gemini GEMINI.md"
 fi
 
-warn "config.json" "kept if present; remove manually if unwanted: $FUGU_HOME/config.json"
+warn "andy.config.json" "kept if present; remove manually if unwanted: $CODEX_HOME/andy.config.json"
 ok "complete" "andy symlink uninstall complete"

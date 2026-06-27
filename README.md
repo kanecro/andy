@@ -52,7 +52,7 @@ andy/
 ├── AGENTS.md                       # canonical agent entrypoint
 ├── CLAUDE.md                       # Claude-style shim → AGENTS.md
 ├── GEMINI.md                       # Gemini-style shim → AGENTS.md
-├── install.sh                      # ~/.fugu + ~/.codex への基本インストール
+├── install.sh                      # ~/.codex への基本インストール
 ├── uninstall.sh                    # symlink uninstall
 ├── core/                           # ランタイム非依存のハーネス本体
 │   ├── principles.md
@@ -76,8 +76,8 @@ andy/
 
 ## インストール
 
-デフォルトでは、`${FUGU_HOME:-$HOME/.fugu}` にハーネス本体を配置し、`${CODEX_HOME:-$HOME/.codex}/AGENTS.md` にも symlink を作成します。
-これにより `codex` / `codex-fugu` セッションで andy の `AGENTS.md` が読み込まれる状態にします。
+デフォルトでは、`${CODEX_HOME:-$HOME/.codex}` にハーネス本体と Codex entrypoint を配置します。
+`codex` / `codex-fugu` はどちらも Codex 互換の `AGENTS.md` を読むため、andy の有効化先は `~/.codex` に一本化しています。
 
 ```bash
 cd /Users/kaneshiro/Projects/github.com/kanecro/andy
@@ -87,28 +87,24 @@ cd /Users/kaneshiro/Projects/github.com/kanecro/andy
 作成されるもの:
 
 ```text
-~/.fugu/
+~/.codex/
 ├── harnesses/andy -> /path/to/andy
 ├── AGENTS.md -> harnesses/andy/AGENTS.md
-├── CLAUDE.md -> harnesses/andy/CLAUDE.md
-├── GEMINI.md -> harnesses/andy/GEMINI.md
 ├── andy.config.template.json -> harnesses/andy/adapters/fugu/config.template.json
+├── andy.config.json
 └── active-harness -> harnesses/andy
-
-~/.codex/
-└── AGENTS.md -> ~/.fugu/harnesses/andy/AGENTS.md
 ```
 
-既存ファイルがある場合は、確認のうえ `~/.fugu/backups/andy-YYYYMMDD-HHMMSS/` に退避します。CIや非対話で使う場合は `-y` を付けてください。
+既存ファイルがある場合は、確認のうえ `~/.codex/.andy-backups/andy-YYYYMMDD-HHMMSS/` に退避します。CIや非対話で使う場合は `-y` を付けてください。
 
 ```bash
 ./install.sh -y
 ```
 
-Codex 側に触れたくない場合だけ `--no-codex` を指定します。
+別の Codex home に入れる場合は `--target` か `CODEX_HOME` を指定します。
 
 ```bash
-./install.sh --no-codex
+./install.sh --target /path/to/codex-home
 ```
 
 ## Optional: Claude / Gemini のグローバル入口にも入れる
@@ -118,7 +114,7 @@ Codex 側に触れたくない場合だけ `--no-codex` を指定します。
 ```bash
 ./install.sh --with-claude  # ~/.claude/CLAUDE.md
 ./install.sh --with-gemini  # ~/.gemini/GEMINI.md
-./install.sh --all-agents   # Codex / Claude / Gemini すべて
+./install.sh --all-agents   # Claude / Gemini も有効化
 ```
 
 ## アンインストール
@@ -127,13 +123,7 @@ Codex 側に触れたくない場合だけ `--no-codex` を指定します。
 ./uninstall.sh
 ```
 
-andy が作成した symlink のみ削除します。デフォルトでは `~/.fugu` 側と `~/.codex/AGENTS.md` を削除します。`~/.fugu/config.json` などのユーザー設定は削除しません。
-
-Codex 側の symlink を残したい場合:
-
-```bash
-./uninstall.sh --keep-codex
-```
+andy が作成した symlink のみ削除します。デフォルトでは `~/.codex` 側の andy symlink を削除します。`~/.codex/andy.config.json` などのユーザー設定は削除しません。
 
 Claude / Gemini の global shims も削除する場合:
 

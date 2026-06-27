@@ -3,46 +3,40 @@ set -euo pipefail
 
 FORCE=false
 SET_ACTIVE=true
-INSTALL_CODEX=true
 INSTALL_CLAUDE=false
 INSTALL_GEMINI=false
-FUGU_HOME="${FUGU_HOME:-$HOME/.fugu}"
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 CLAUDE_HOME="${CLAUDE_HOME:-$HOME/.claude}"
 GEMINI_HOME="${GEMINI_HOME:-$HOME/.gemini}"
 
 usage() {
-  cat <<EOF
+  cat <<EOF_USAGE
 Usage: $(basename "$0") [OPTIONS]
 
-Install andy harness symlinks.
-Default install targets are \${FUGU_HOME:-~/.fugu} and \${CODEX_HOME:-~/.codex}.
-This makes the harness active for Codex/codex-fugu sessions by default.
+Install andy harness symlinks into \${CODEX_HOME:-~/.codex}.
+Codex and codex-fugu both load the Codex-compatible entrypoint at
+\${CODEX_HOME:-~/.codex}/AGENTS.md, so this is the only default install target.
 Claude and Gemini global shims are opt-in.
 
 Options:
   -y, --yes          Skip confirmation prompts
-  --no-active        Do not update ~/.fugu/active-harness
-  --no-codex         Do not link ~/.codex/AGENTS.md
-  --target DIR       Override FUGU_HOME for this install
-  --with-codex       Link ~/.codex/AGENTS.md (default; kept for compatibility)
+  --no-active        Do not create ~/.codex/active-harness
+  --target DIR       Override CODEX_HOME for this install
   --with-claude      Also link ~/.claude/CLAUDE.md
   --with-gemini      Also link ~/.gemini/GEMINI.md
-  --all-agents       Enable all global shims
+  --all-agents       Enable Claude and Gemini shims too
   -h, --help         Show this help
-EOF
+EOF_USAGE
 }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -y|--yes) FORCE=true; shift ;;
     --no-active) SET_ACTIVE=false; shift ;;
-    --no-codex) INSTALL_CODEX=false; shift ;;
-    --target) FUGU_HOME="$2"; shift 2 ;;
-    --with-codex) INSTALL_CODEX=true; shift ;;
+    --target) CODEX_HOME="$2"; shift 2 ;;
     --with-claude) INSTALL_CLAUDE=true; shift ;;
     --with-gemini) INSTALL_GEMINI=true; shift ;;
-    --all-agents) INSTALL_CODEX=true; INSTALL_CLAUDE=true; INSTALL_GEMINI=true; shift ;;
+    --all-agents) INSTALL_CLAUDE=true; INSTALL_GEMINI=true; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown option: $1"; usage; exit 1 ;;
   esac
@@ -61,12 +55,18 @@ fail() { printf '\033[31m[FAIL]\033[0m %-34s %s\n' "$1" "$2"; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 ANDY_ROOT="$SCRIPT_DIR"
-TARGET_DIR="$FUGU_HOME/harnesses/andy"
-BACKUP_DIR="$FUGU_HOME/backups/andy-$(date +%Y%m%d-%H%M%S)"
+TARGET_DIR="$CODEX_HOME/harnesses/andy"
+BACKUP_DIR="$CODEX_HOME/.andy-backups/andy-$(date +%Y%m%d-%H%M%S)"
 
 [[ -f "$ANDY_ROOT/AGENTS.md" ]] || { fail "AGENTS.md" "not found; run from andy root"; exit 1; }
 
-mkdir -p "$FUGU_HOME/harnesses" "$FUGU_HOME/backups"
+mkdir -p "$CODEX_HOME/harnesses" "$CODEX_HOME/.andy-backups"
+
+backup_name_for() {
+  local path="$1"
+  path="${path#/}"
+  printf '%s' "${path//\//__}"
+}
 
 link_path() {
   local src="$1" dest="$2" label="$3" backup_base="${4:-$BACKUP_DIR}"
@@ -82,8 +82,8 @@ link_path() {
   if [[ -e "$dest" ]]; then
     warn "$label" "existing file/directory found"
     if confirm "Backup and replace $dest?"; then
-      mkdir -p "$backup_base/$(dirname "${dest#$HOME/}")"
-      mv "$dest" "$backup_base/${dest#$HOME/}"
+      mkdir -p "$backup_base"
+      mv "$dest" "$backup_base/$(backup_name_for "$dest")"
       ln -sfn "$src" "$dest"
       ok "$label" "backed up and linked"
     else
@@ -96,28 +96,23 @@ link_path() {
 }
 
 info "andy root" "$ANDY_ROOT"
-info "FUGU_HOME" "$FUGU_HOME"
+info "CODEX_HOME" "$CODEX_HOME"
 
 link_path "$ANDY_ROOT" "$TARGET_DIR" "harnesses/andy"
-link_path "$TARGET_DIR/AGENTS.md" "$FUGU_HOME/AGENTS.md" "Fugu AGENTS.md"
-link_path "$TARGET_DIR/CLAUDE.md" "$FUGU_HOME/CLAUDE.md" "Fugu CLAUDE.md"
-link_path "$TARGET_DIR/GEMINI.md" "$FUGU_HOME/GEMINI.md" "Fugu GEMINI.md"
-link_path "$TARGET_DIR/adapters/fugu/config.template.json" "$FUGU_HOME/andy.config.template.json" "config template"
+link_path "$TARGET_DIR/AGENTS.md" "$CODEX_HOME/AGENTS.md" "Codex AGENTS.md"
+link_path "$TARGET_DIR/adapters/fugu/config.template.json" "$CODEX_HOME/andy.config.template.json" "config template"
 
 if $SET_ACTIVE; then
-  link_path "$TARGET_DIR" "$FUGU_HOME/active-harness" "active-harness"
+  link_path "$TARGET_DIR" "$CODEX_HOME/active-harness" "active-harness"
 fi
 
-if [[ ! -f "$FUGU_HOME/config.json" ]]; then
-  cp "$ANDY_ROOT/adapters/fugu/config.template.json" "$FUGU_HOME/config.json"
-  ok "config.json" "created from template"
+if [[ ! -f "$CODEX_HOME/andy.config.json" ]]; then
+  cp "$ANDY_ROOT/adapters/fugu/config.template.json" "$CODEX_HOME/andy.config.json"
+  ok "andy.config.json" "created from template"
 else
-  warn "config.json" "already exists; not overwritten"
+  warn "andy.config.json" "already exists; not overwritten"
 fi
 
-if $INSTALL_CODEX; then
-  link_path "$TARGET_DIR/AGENTS.md" "$CODEX_HOME/AGENTS.md" "Codex AGENTS.md"
-fi
 if $INSTALL_CLAUDE; then
   link_path "$TARGET_DIR/CLAUDE.md" "$CLAUDE_HOME/CLAUDE.md" "Claude CLAUDE.md"
 fi
@@ -128,4 +123,4 @@ fi
 "$ANDY_ROOT/scripts/validate-harness.sh" "$ANDY_ROOT"
 
 echo
-ok "complete" "andy installed into $FUGU_HOME"
+ok "complete" "andy installed into $CODEX_HOME"

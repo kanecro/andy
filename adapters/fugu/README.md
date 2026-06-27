@@ -5,8 +5,9 @@ This adapter describes how to use andy in a Fugu-first environment.
 ## Assumptions
 
 - Fugu chooses models automatically.
+- Fugu/codex-fugu is Codex-compatible for harness loading.
 - andy provides workflows, roles, policies, artifacts, and guardrails.
-- Runtime-specific installation path is `${FUGU_HOME:-~/.fugu}`.
+- The user-level installation path is `${CODEX_HOME:-~/.codex}`.
 
 ## Session bootstrap
 

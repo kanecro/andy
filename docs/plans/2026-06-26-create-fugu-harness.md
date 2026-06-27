@@ -4,7 +4,7 @@
 
 **Goal:** Create `../andy` as a Fugu-first user-level harness with install/uninstall mechanisms.
 
-**Architecture:** andy separates runtime-independent `core/` from `adapters/fugu/`. Install/uninstall use symlinks into `${FUGU_HOME:-~/.fugu}` so updates to the andy directory are reflected without copying.
+**Architecture:** andy separates runtime-independent `core/` from `adapters/fugu/`. The original scaffold used a Fugu-specific user directory, but that was superseded because codex-fugu is Codex-compatible for harness loading. Current install/uninstall use symlinks under `${CODEX_HOME:-~/.codex}` so updates to the andy directory are reflected without copying.
 
 **Tech Stack:** Markdown runbooks, Bash installer, Node.js guardrail scripts, JSON config template.
 
@@ -33,7 +33,7 @@
 - Create: `uninstall.sh`
 
 **Steps:**
-1. Install symlinks to `~/.fugu/harnesses/andy`, `~/.fugu/AGENTS.md` / `~/.fugu/CLAUDE.md` / `~/.fugu/GEMINI.md`, config template, and active harness.
+1. Install symlinks to the Codex home: `harnesses/andy`, `AGENTS.md`, config template, and active harness.
 2. Backup existing conflicting files after confirmation.
 3. Uninstall only symlinks that point to andy.
 

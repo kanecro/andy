@@ -4,7 +4,7 @@ let data;
 try { data = JSON.parse(input); } catch { data = { file_path: input }; }
 const filePath = data.file_path || data.path || '';
 if (!filePath) process.exit(0);
-const allowedDirs = ['/docs/', '/openspec/', '/.fugu/', '/.andy/'];
+const allowedDirs = ['/docs/', '/openspec/', '/.andy/'];
 if (allowedDirs.some(d => filePath.includes(d))) process.exit(0);
 const fileName = filePath.split('/').pop() || '';
 const isDoc = /\.(md|txt)$/i.test(fileName);

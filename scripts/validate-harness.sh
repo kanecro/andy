@@ -88,8 +88,35 @@ CODEX_ENTRYPOINT_PY
 )"
 if [[ "$codex_entrypoint" == "~/.codex/AGENTS.md" ]]; then ok "Codex default entrypoint is ~/.codex/AGENTS.md"; else fail "Codex default entrypoint is $codex_entrypoint"; fi
 
-if grep -q '^INSTALL_CODEX=true$' "$ROOT/install.sh"; then ok "install.sh enables Codex by default"; else fail "install.sh does not enable Codex by default"; fi
-if grep -q '^REMOVE_CODEX=true$' "$ROOT/uninstall.sh"; then ok "uninstall.sh removes Codex shim by default"; else fail "uninstall.sh does not remove Codex shim by default"; fi
+codex_home="$(ROOT_FOR_PY="$ROOT" python3 - <<'CODEX_HOME_PY'
+import json, os
+from pathlib import Path
+p = Path(os.environ['ROOT_FOR_PY']) / 'adapters/fugu/config.template.json'
+print(json.loads(p.read_text()).get('installation', {}).get('defaultCodexHome'))
+CODEX_HOME_PY
+)"
+if [[ "$codex_home" == "~/.codex" ]]; then ok "default harness home is ~/.codex"; else fail "default harness home is $codex_home"; fi
+
+harness_symlink="$(ROOT_FOR_PY="$ROOT" python3 - <<'HARNESS_SYMLINK_PY'
+import json, os
+from pathlib import Path
+p = Path(os.environ['ROOT_FOR_PY']) / 'adapters/fugu/config.template.json'
+print(json.loads(p.read_text()).get('installation', {}).get('harnessSymlink'))
+HARNESS_SYMLINK_PY
+)"
+if [[ "$harness_symlink" == "~/.codex/harnesses/andy" ]]; then ok "harness symlink is under ~/.codex"; else fail "harness symlink is $harness_symlink"; fi
+
+legacy_env="FUGU""_HOME"
+legacy_config_key="default""FuguHome"
+legacy_home_regex="~/[.]fugu"
+if grep -RIn -E "${legacy_env}|${legacy_config_key}|${legacy_home_regex}" "$ROOT/install.sh" "$ROOT/uninstall.sh" "$ROOT/README.md" "$ROOT/adapters/fugu/README.md" "$ROOT/adapters/fugu/config.template.json" >/tmp/andy-fugu-home-grep.$$ 2>/dev/null; then
+  cat /tmp/andy-fugu-home-grep.$$
+  rm -f /tmp/andy-fugu-home-grep.$$
+  fail "active install docs still reference legacy Fugu home"
+else
+  rm -f /tmp/andy-fugu-home-grep.$$
+  ok "active install docs avoid legacy Fugu home"
+fi
 
 if [[ ! -x "$ROOT/install.sh" ]]; then fail "install.sh is not executable"; fi
 if [[ ! -x "$ROOT/uninstall.sh" ]]; then fail "uninstall.sh is not executable"; fi
