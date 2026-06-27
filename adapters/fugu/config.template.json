@@ -25,9 +25,12 @@
     "avoidHardcodedModelNames": true
   },
   "installation": {
-    "defaultFuguHome": "~/.fugu",
+    "defaultCodexHome": "~/.codex",
+    "harnessSymlink": "~/.codex/harnesses/andy",
     "defaultCodexEntrypoint": "~/.codex/AGENTS.md",
-    "activeHarnessSymlink": "~/.fugu/active-harness",
+    "activeHarnessSymlink": "~/.codex/active-harness",
+    "configTemplateSymlink": "~/.codex/andy.config.template.json",
+    "configFile": "~/.codex/andy.config.json",
     "optionalGlobalShims": {
       "claude": "~/.claude/CLAUDE.md",
       "gemini": "~/.gemini/GEMINI.md"
