@@ -10,6 +10,12 @@ Run the full lifecycle with approval gates.
 brainstorm → approval → spec → approval → implement → review → test → compound
 ```
 
+## Short command input
+
+When invoked as `ship issue #123`, follow `core/workflows/command-router.md` to resolve the issue, then run the pipeline using that issue as the brainstorm input.
+
+When invoked as `ship <topic>`, use the topic as the brainstorm input.
+
 ## Rules
 
 - Do not skip approval after brainstorm/spec.
@@ -24,4 +30,3 @@ brainstorm → approval → spec → approval → implement → review → test 
 - Follow `core/policies/verification-policy.md` before claiming completion.
 - Keep changes minimal and scoped.
 - Write artifacts to the project, not to root ad-hoc notes, unless requested.
-

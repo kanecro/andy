@@ -18,8 +18,8 @@ Claude and Gemini global shims are removed only when requested.
 Options:
   -y, --yes          Skip confirmation prompts
   --target DIR       Override CODEX_HOME for this uninstall
-  --with-claude      Also remove ~/.claude/CLAUDE.md if it is an andy symlink
-  --with-gemini      Also remove ~/.gemini/GEMINI.md if it is an andy symlink
+  --with-claude      Also remove ~/.claude/CLAUDE.md and ~/.claude/commands andy symlinks
+  --with-gemini      Also remove ~/.gemini/GEMINI.md and ~/.gemini/commands andy symlinks
   --all-agents       Enable Claude and Gemini shim removals too
   -h, --help         Show this help
 EOF_USAGE
@@ -79,15 +79,37 @@ remove_link_if_matches() {
 remove_link_if_matches "$CODEX_HOME/AGENTS.md" "$TARGET_DIR/AGENTS.md" "Codex AGENTS.md"
 remove_link_if_matches "$CODEX_HOME/andy.config.template.json" "$TARGET_DIR/adapters/fugu/config.template.json" "config template"
 remove_link_if_matches "$CODEX_HOME/active-harness" "$TARGET_DIR" "active-harness"
+
+# Remove andy runtime command sets. Any symlink whose target lives under the andy
+# harness dir (or repo) is treated as andy-owned and removed.
+#
+#   $1 dir   runtime command dir (e.g. $CODEX_HOME/prompts)
+#   $2 ext   command file extension (md|toml)
+#   $3 label log label (e.g. "codex prompt")
+remove_command_set() {
+  local dir="$1" ext="$2" label="$3" file name
+  [[ -d "$dir" ]] || return 0
+  for file in "$dir"/*."$ext"; do
+    [[ -L "$file" ]] || continue
+    name="$(basename "$file")"
+    remove_link_if_matches "$file" "$TARGET_DIR/$name" "$label /${name%.*}"
+  done
+}
+
+# Codex / codex-fugu custom prompts (default install target).
+remove_command_set "$CODEX_HOME/prompts" "md" "codex prompt"
+
 remove_link_if_matches "$TARGET_DIR" "$ANDY_ROOT" "harnesses/andy"
 LEGACY_ENTRYPOINT="andy"".md"
 remove_link_if_matches "$CODEX_HOME/$LEGACY_ENTRYPOINT" "$TARGET_DIR/$LEGACY_ENTRYPOINT" "legacy entrypoint"
 
 if $REMOVE_CLAUDE; then
   remove_link_if_matches "$CLAUDE_HOME/CLAUDE.md" "$TARGET_DIR/CLAUDE.md" "Claude CLAUDE.md"
+  remove_command_set "$CLAUDE_HOME/commands" "md" "claude command"
 fi
 if $REMOVE_GEMINI; then
   remove_link_if_matches "$GEMINI_HOME/GEMINI.md" "$TARGET_DIR/GEMINI.md" "Gemini GEMINI.md"
+  remove_command_set "$GEMINI_HOME/commands" "toml" "gemini command"
 fi
 
 warn "andy.config.json" "kept if present; remove manually if unwanted: $CODEX_HOME/andy.config.json"

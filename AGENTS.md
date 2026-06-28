@@ -33,6 +33,54 @@ brainstorm → spec → implement → review → test → compound
 - After approval, `implement` / `review` / `test` / `compound` may run autonomously within scope.
 - Escalate security, database, production, destructive, or breaking-contract decisions.
 
+## Short Workflow Commands
+
+andy exposes two equivalent ways to start a workflow. The user never needs to
+state a long harness path.
+
+**Preferred (deterministic): slash commands.** After install, supported runtimes
+expose one command per workflow in any repository:
+
+```text
+/brainstorm issue #123
+/spec issue-123-add-notifications
+/implement issue-123-add-notifications
+/review
+/test
+/compound
+/ship issue #123
+```
+
+Runtime command adapters:
+
+| Runtime | Adapter files | Installed by |
+|---|---|---|
+| Codex / codex-fugu | `adapters/codex/prompts/*.md` | `./install.sh` |
+| Claude Code | `adapters/claude/commands/*.md` | `./install.sh --with-claude` |
+| Gemini CLI / Antigravity | `adapters/gemini/commands/*.toml` | `./install.sh --with-gemini` |
+
+**Fallback: plain-message routing.** When the user's request starts with one of
+these workflow words (without a slash), treat it as an andy workflow command and
+do not ask the user to restate a long file path:
+
+```text
+brainstorm [topic | issue #123 | owner/repo#123]
+spec <change-name | proposal path | issue #123>
+implement <change-name | tasks path>
+review [change-name]
+test [change-name]
+compound [topic]
+ship [topic | issue #123 | owner/repo#123]
+```
+
+Command handling:
+
+1. Resolve the andy harness root. Default installed candidates are `${CODEX_HOME:-$HOME/.codex}/active-harness`, then `${CODEX_HOME:-$HOME/.codex}/harnesses/andy`; the resolved directory must contain `AGENTS.md` and `core/workflows/`.
+2. Load `core/workflows/command-router.md`, then load only the workflow runbook needed for the command.
+3. Treat the current working directory as the target development repository. Write generated artifacts to that repository, never to the installed harness directory, unless the user explicitly asks to edit the harness.
+4. For `issue #123`, use the current repository's GitHub issue. For `owner/repo#123`, use that explicit GitHub repository. If available, inspect the issue with `gh issue view` and include title, body, labels, state, URL, and relevant comments as workflow input. If the issue cannot be fetched, ask the user for the issue text or permission/credentials needed to fetch it.
+5. Preserve the approval gates: stop for user approval after `brainstorm` and after `spec` before implementation.
+
 ## Required Core Files
 
 Load only what is relevant to the task.
@@ -47,6 +95,8 @@ Load only what is relevant to the task.
 | `core/policies/context-isolation-policy.md` | Coordinator / worker separation |
 | `core/policies/verification-policy.md` | Evidence-before-claims rules |
 | `core/policies/skill-loading-policy.md` | Candidate broadly, load narrowly |
+| `core/policies/harness-resolution-policy.md` | Find the installed harness from any repository |
+| `core/workflows/command-router.md` | Map short commands to workflow runbooks |
 | `core/workflows/*.md` | Workflow runbooks |
 | `core/roles/*.md` | Worker role contracts |
 | `core/artifact-schemas/*.md` | Output schemas |

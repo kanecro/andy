@@ -56,3 +56,13 @@ Ask before:
 ## Notes
 
 Project instructions may specialize andy, but must not weaken `core/policies/immutable-rules.md`.
+
+If this project is used with the global andy harness, keep short workflow commands available:
+
+```text
+brainstorm issue #123
+spec <change-name>
+implement <change-name>
+```
+
+Do not redefine `core/workflows/` as a project-relative path unless this repository intentionally vendors andy under `./.andy/harness`.
