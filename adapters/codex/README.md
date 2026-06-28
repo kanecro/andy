@@ -21,6 +21,6 @@ For short commands such as `brainstorm issue #123`, load `core/workflows/command
 
 Codex / codex-fugu custom prompts live in `adapters/codex/prompts/*.md` and are
 installed into `${CODEX_HOME:-~/.codex}/prompts/` by default. They expose
-`/brainstorm`, `/spec`, `/implement`, `/review`, `/test`, `/compound`, `/ship` in
+`/brainstorm`, `/spec`, `/implement`, `/review`, `/test`, `/compound`, `/setup`, `/ship` in
 every repository. Each prompt uses `$ARGUMENTS` and resolves the harness root
 itself. See `adapters/codex/prompts/README.md`.

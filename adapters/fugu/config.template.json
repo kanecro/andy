@@ -28,6 +28,7 @@
     "review": "core/workflows/review.md",
     "test": "core/workflows/test.md",
     "compound": "core/workflows/compound.md",
+    "setup": "core/workflows/setup.md",
     "ship": "core/workflows/ship.md"
   },
   "modelSelection": {

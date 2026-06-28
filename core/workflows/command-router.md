@@ -20,6 +20,7 @@ implement <change-name | tasks path>
 review [change-name]
 test [change-name]
 compound [topic]
+setup [search hints]
 ship [topic | issue #123 | owner/repo#123]
 ```
 
@@ -35,7 +36,17 @@ Also accept natural Japanese around the command word when the intent is clear, f
 | `review` | `core/workflows/review.md` | current diff or change |
 | `test` | `core/workflows/test.md` | current diff or change |
 | `compound` | `core/workflows/compound.md` | completed change or learning |
+| `setup` | `core/workflows/setup.md` | optional skill search hints |
 | `ship` | `core/workflows/ship.md` | topic or issue |
+
+## Setup input resolution
+
+For `setup [search hints]`:
+
+1. Treat the current working directory as the target repository to inspect.
+2. Use any provided text after `setup` as high-priority skill search hints.
+3. Load `core/workflows/setup.md`; do not run installation until the user approves specific skills.
+4. Prefer project-local, agent-neutral skill installation under `.agents/skills/` or the closest GitHub CLI universal/project-scope target.
 
 ## Issue input resolution
 

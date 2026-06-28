@@ -19,6 +19,7 @@ Candidate broadly, load narrowly.
 | review | iterative-retrieval, verification-before-completion |
 | test | verification-before-completion, systematic-debugging on failure |
 | compound | verification-before-completion |
+| setup | iterative-retrieval, verification-before-completion, candidate domain skills after user approval |
 
 ## Domain skills
 
