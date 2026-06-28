@@ -38,6 +38,9 @@ Projects must not weaken:
 - High-risk escalation
 - Parallel write ownership
 - No bypassing tests/types/security checks
+- Short workflow command routing from the global andy harness, including commands such as `brainstorm issue #123`
+
+Project `AGENTS.md` files may add local context, but they should not redefine `core/workflows/` as project-relative unless the project intentionally vendors andy under `./.andy/harness`.
 
 ## Override template
 

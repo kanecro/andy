@@ -15,9 +15,20 @@
     "skills": "core/skills",
     "artifactSchemas": "core/artifact-schemas",
     "guardrails": "core/guardrails",
+    "commandRouter": "core/workflows/command-router.md",
     "rulePrecedence": "core/policies/rule-precedence-policy.md",
     "immutableRules": "core/policies/immutable-rules.md",
-    "projectOverrides": "core/policies/project-overrides-policy.md"
+    "projectOverrides": "core/policies/project-overrides-policy.md",
+    "harnessResolution": "core/policies/harness-resolution-policy.md"
+  },
+  "commands": {
+    "brainstorm": "core/workflows/brainstorm.md",
+    "spec": "core/workflows/spec.md",
+    "implement": "core/workflows/implement.md",
+    "review": "core/workflows/review.md",
+    "test": "core/workflows/test.md",
+    "compound": "core/workflows/compound.md",
+    "ship": "core/workflows/ship.md"
   },
   "modelSelection": {
     "mode": "delegate_to_runtime",
@@ -34,7 +45,19 @@
     "optionalGlobalShims": {
       "claude": "~/.claude/CLAUDE.md",
       "gemini": "~/.gemini/GEMINI.md"
-    }
+    },
+    "globalCommands": {
+      "codex": "~/.codex/prompts/*.md",
+      "claude": "~/.claude/commands/*.md",
+      "gemini": "~/.gemini/commands/*.toml"
+    },
+    "commandAdapters": {
+      "codex": "adapters/codex/prompts",
+      "claude": "adapters/claude/commands",
+      "gemini": "adapters/gemini/commands"
+    },
+    "commandCatalog": "adapters/commands/catalog.json",
+    "commandGenerator": "scripts/generate-commands.py"
   },
   "templates": {
     "project": "templates/project"

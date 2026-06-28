@@ -14,3 +14,13 @@
 ## Loading policy
 
 Start with `AGENTS.md`, then load only the relevant `core/workflows/`, `core/policies/`, and `core/roles/` files for the current task.
+
+For short commands such as `brainstorm issue #123`, load `core/workflows/command-router.md` first and resolve the installed harness via `core/policies/harness-resolution-policy.md`. The current working directory remains the target project; the installed harness is only the source of instructions.
+
+## Slash commands
+
+Codex / codex-fugu custom prompts live in `adapters/codex/prompts/*.md` and are
+installed into `${CODEX_HOME:-~/.codex}/prompts/` by default. They expose
+`/brainstorm`, `/spec`, `/implement`, `/review`, `/test`, `/compound`, `/ship` in
+every repository. Each prompt uses `$ARGUMENTS` and resolves the harness root
+itself. See `adapters/codex/prompts/README.md`.

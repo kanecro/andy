@@ -16,14 +16,16 @@ Usage: $(basename "$0") [OPTIONS]
 Install andy harness symlinks into \${CODEX_HOME:-~/.codex}.
 Codex and codex-fugu both load the Codex-compatible entrypoint at
 \${CODEX_HOME:-~/.codex}/AGENTS.md, so this is the only default install target.
-Claude and Gemini global shims are opt-in.
+The Codex/codex-fugu workflow commands (/brainstorm, /spec, ...) are installed by
+default. Claude and Gemini (Gemini also covers Antigravity) shims and commands
+are opt-in.
 
 Options:
   -y, --yes          Skip confirmation prompts
   --no-active        Do not create ~/.codex/active-harness
   --target DIR       Override CODEX_HOME for this install
-  --with-claude      Also link ~/.claude/CLAUDE.md
-  --with-gemini      Also link ~/.gemini/GEMINI.md
+  --with-claude      Also link ~/.claude/CLAUDE.md and ~/.claude/commands/*.md
+  --with-gemini      Also link ~/.gemini/GEMINI.md and ~/.gemini/commands/*.toml
   --all-agents       Enable Claude and Gemini shims too
   -h, --help         Show this help
 EOF_USAGE
@@ -106,6 +108,32 @@ if $SET_ACTIVE; then
   link_path "$TARGET_DIR" "$CODEX_HOME/active-harness" "active-harness"
 fi
 
+# Install runtime command sets. Each set links workflow command files from a
+# runtime adapter into that runtime's user-level command directory. `core/`
+# stays runtime-neutral; only adapters know the per-runtime command format.
+#
+#   $1 src_dir   adapter command dir inside the andy repo (e.g. adapters/codex/prompts)
+#   $2 dest_dir  runtime command dir (e.g. $CODEX_HOME/prompts)
+#   $3 ext       command file extension to link (md|toml)
+#   $4 label     human label for log lines (e.g. "codex prompt")
+install_command_set() {
+  local src_dir="$1" dest_dir="$2" ext="$3" label="$4"
+  [[ -d "$ANDY_ROOT/$src_dir" ]] || { warn "$label" "no adapter dir: $src_dir"; return 0; }
+  mkdir -p "$dest_dir"
+  local file name cmd_name
+  for file in "$ANDY_ROOT/$src_dir"/*."$ext"; do
+    [[ -e "$file" ]] || continue
+    name="$(basename "$file")"
+    [[ "$name" == "README.$ext" ]] && continue
+    cmd_name="${name%.*}"
+    link_path "$TARGET_DIR/$src_dir/$name" "$dest_dir/$name" "$label /$cmd_name"
+  done
+}
+
+# Codex / codex-fugu custom prompts (default install target).
+# Codex scans only top-level Markdown files in $CODEX_HOME/prompts.
+install_command_set "adapters/codex/prompts" "$CODEX_HOME/prompts" "md" "codex prompt"
+
 if [[ ! -f "$CODEX_HOME/andy.config.json" ]]; then
   cp "$ANDY_ROOT/adapters/fugu/config.template.json" "$CODEX_HOME/andy.config.json"
   ok "andy.config.json" "created from template"
@@ -115,12 +143,18 @@ fi
 
 if $INSTALL_CLAUDE; then
   link_path "$TARGET_DIR/CLAUDE.md" "$CLAUDE_HOME/CLAUDE.md" "Claude CLAUDE.md"
+  install_command_set "adapters/claude/commands" "$CLAUDE_HOME/commands" "md" "claude command"
 fi
 if $INSTALL_GEMINI; then
   link_path "$TARGET_DIR/GEMINI.md" "$GEMINI_HOME/GEMINI.md" "Gemini GEMINI.md"
+  # Gemini CLI and Antigravity share the same custom-command format.
+  install_command_set "adapters/gemini/commands" "$GEMINI_HOME/commands" "toml" "gemini command"
 fi
 
 "$ANDY_ROOT/scripts/validate-harness.sh" "$ANDY_ROOT"
 
 echo
 ok "complete" "andy installed into $CODEX_HOME"
+info "slash commands" "try: /brainstorm issue #123  (or plain: brainstorm issue #123)"
+if $INSTALL_CLAUDE; then info "claude commands" "installed into $CLAUDE_HOME/commands"; fi
+if $INSTALL_GEMINI; then info "gemini commands" "installed into $GEMINI_HOME/commands (covers Antigravity)"; fi

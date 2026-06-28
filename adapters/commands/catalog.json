@@ -1,0 +1,90 @@
+{
+  "commands": [
+    {
+      "name": "brainstorm",
+      "description": "andy brainstorm — turn an idea or GitHub issue into a proposal",
+      "argument_hint": "[topic | issue #123 | owner/repo#123]",
+      "workflow": "core/workflows/brainstorm.md",
+      "intro": "You are running the andy `brainstorm` workflow.",
+      "steps_after_load": [
+        "Treat the current working directory as the target development repository. Write artifacts there (`./openspec/changes/<change-name>/proposal.md`), never into the harness directory.",
+        "If the input looks like `issue #123` or `owner/repo#123`, resolve it as a GitHub issue per the router (prefer `gh issue view`). If it cannot be fetched, ask the user for the issue text. Otherwise treat the input as the free-form topic.",
+        "Stop for user approval before moving to `spec`."
+      ],
+      "empty_args": "If the input is empty, ask the user for the topic or issue to brainstorm."
+    },
+    {
+      "name": "spec",
+      "description": "andy spec — turn an approved proposal into design, tasks, delta-spec, traceability",
+      "argument_hint": "<change-name | proposal path | issue #123>",
+      "workflow": "core/workflows/spec.md",
+      "intro": "You are running the andy `spec` workflow.",
+      "steps_after_load": [
+        "Treat the current working directory as the target development repository. Read `./openspec/changes/<change-name>/proposal.md` and write `design.md` / `tasks.md` / `specs/<feature>/delta-spec.md` / `traceability.md` under `./openspec/changes/<change-name>/`.",
+        "If the input is `issue #123`, locate an existing change whose proposal references the issue; if none exists, run brainstorm first and stop for approval.",
+        "Stop for user approval before moving to `implement`."
+      ],
+      "empty_args": "If the input is empty, ask the user which change-name or proposal to spec."
+    },
+    {
+      "name": "implement",
+      "description": "andy implement — implement approved tasks with minimal change and TDD",
+      "argument_hint": "<change-name | tasks path>",
+      "workflow": "core/workflows/implement.md",
+      "intro": "You are running the andy `implement` workflow.",
+      "steps_after_load": [
+        "Treat the current working directory as the target development repository. Read `./openspec/changes/<change-name>/tasks.md` and implement in that repository.",
+        "Only implement approved tasks. If parallelizing, assign disjoint write scopes per worker and do not revert others' work.",
+        "Run the relevant verification and report evidence."
+      ],
+      "empty_args": "If the input is empty, ask the user which change-name or tasks.md to implement."
+    },
+    {
+      "name": "review",
+      "description": "andy review — review changes for spec compliance, quality, and risk",
+      "argument_hint": "[change-name]",
+      "workflow": "core/workflows/review.md",
+      "intro": "You are running the andy `review` workflow.",
+      "steps_after_load": [
+        "Treat the current working directory as the target development repository. Review the current diff or the change named in the input.",
+        "This is a read-only critique. Do not modify code; report findings with severity and evidence."
+      ],
+      "empty_args": ""
+    },
+    {
+      "name": "test",
+      "description": "andy test — run L1/L2/L3 verification and record evidence",
+      "argument_hint": "[change-name]",
+      "workflow": "core/workflows/test.md",
+      "intro": "You are running the andy `test` workflow.",
+      "steps_after_load": [
+        "Treat the current working directory as the target development repository. Run the project's verification commands and report results with evidence."
+      ],
+      "empty_args": ""
+    },
+    {
+      "name": "compound",
+      "description": "andy compound — record learnings from a completed change",
+      "argument_hint": "[topic]",
+      "workflow": "core/workflows/compound.md",
+      "intro": "You are running the andy `compound` workflow.",
+      "steps_after_load": [
+        "Treat the current working directory as the target development repository. Write learnings to `./docs/compound/YYYY-MM-DD-<topic>.md` in that repository."
+      ],
+      "empty_args": ""
+    },
+    {
+      "name": "ship",
+      "description": "andy ship — run the full lifecycle with approval gates",
+      "argument_hint": "[topic | issue #123 | owner/repo#123]",
+      "workflow": "core/workflows/ship.md",
+      "intro": "You are running the andy `ship` workflow (full pipeline with approval gates).",
+      "steps_after_load": [
+        "Treat the current working directory as the target development repository for all artifacts and code changes.",
+        "Use the input as the brainstorm input (topic or GitHub issue).",
+        "Run `brainstorm -> approval -> spec -> approval -> implement -> review -> test -> compound`. Do not skip the approval gates after brainstorm and spec."
+      ],
+      "empty_args": "If the input is empty, ask the user for the topic or issue to ship."
+    }
+  ]
+}
