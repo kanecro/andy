@@ -18,7 +18,7 @@ Optional user-level shim:
 
 Claude Code custom slash commands live in `adapters/claude/commands/*.md` and are
 installed into `~/.claude/commands/` by `./install.sh --with-claude`. They expose
-`/brainstorm`, `/spec`, `/implement`, `/review`, `/test`, `/compound`, `/ship`.
+`/brainstorm`, `/spec`, `/implement`, `/review`, `/test`, `/compound`, `/setup`, `/ship`.
 Each command uses `$ARGUMENTS` and resolves the andy harness root itself, then
 loads the matching `core/workflows/*.md` runbook. The current working directory is
 always the target development repository.

@@ -95,7 +95,7 @@ cd /Users/kaneshiro/Projects/github.com/kanecro/andy
 ├── prompts/
 │   ├── brainstorm.md -> harnesses/andy/adapters/codex/prompts/brainstorm.md
 │   ├── spec.md -> harnesses/andy/adapters/codex/prompts/spec.md
-│   └── ... (implement / review / test / compound / ship)
+│   └── ... (implement / review / test / compound / setup / ship)
 └── active-harness -> harnesses/andy
 ```
 
@@ -129,7 +129,7 @@ cd /Users/kaneshiro/Projects/github.com/kanecro/andy
 | Claude Code | `adapters/claude/commands/*.md` | `~/.claude/commands/` | Markdown + `$ARGUMENTS` |
 | Gemini CLI / Antigravity | `adapters/gemini/commands/*.toml` | `~/.gemini/commands/` | TOML + `{{args}}` |
 
-どのランタイムでも `/brainstorm` `/spec` `/implement` `/review` `/test` `/compound` `/ship` を同じ意味で使えます。スラッシュコマンドが使えない環境でも、`AGENTS.md` のルーティングが平文（例: `brainstorm issue #123`）のフォールバックを提供します。
+どのランタイムでも `/brainstorm` `/spec` `/implement` `/review` `/test` `/compound` `/setup` `/ship` を同じ意味で使えます。スラッシュコマンドが使えない環境でも、`AGENTS.md` のルーティングが平文（例: `brainstorm issue #123`）のフォールバックを提供します。
 
 これらの adapter command ファイルは **生成物** です。手で編集せず、共通定義の `adapters/commands/catalog.json` を編集してから以下を実行してください。
 
@@ -193,7 +193,7 @@ andy はインストール時に、各ランタイムの adapter から **workfl
 /implement issue-123-add-notifications
 ```
 
-利用できるスラッシュコマンド: `/brainstorm` `/spec` `/implement` `/review` `/test` `/compound` `/ship`
+利用できるスラッシュコマンド: `/brainstorm` `/spec` `/implement` `/review` `/test` `/compound` `/setup` `/ship`
 
 スラッシュを使わず、通常メッセージでも同じ意図にルーティングされます（フォールバック）:
 
@@ -204,7 +204,18 @@ implement <change-name | tasks path>
 review [change-name]
 test [change-name]
 compound [topic]
+setup [search hints]
 ship [topic | issue #123 | owner/repo#123]
+```
+
+
+### setup の使い方
+
+`setup` は、現在のリポジトリの `AGENTS.md` / README / manifest / test・build設定などを狭く読み取り、GitHub CLI の agent skill 検索結果から候補を提案します。インストール前に必ずユーザーへ確認し、承認されたものだけを project-local な `.agents/skills/` か同等の universal/project-scope へ導入します。
+
+```text
+/setup
+/setup react testing
 ```
 
 ### 標準ワークフロー
@@ -221,6 +232,7 @@ brainstorm → spec → implement → review → test → compound
 | review | `core/workflows/review.md` | 仕様準拠・品質・リスクをレビューする | `reviews/review-summary.md` |
 | test | `core/workflows/test.md` | L1/L2/L3の検証を実行し証拠を残す | テスト結果、検証ログ |
 | compound | `core/workflows/compound.md` | 学びを蓄積し次回に還元する | `docs/compound/YYYY-MM-DD-<topic>.md` |
+| setup | `core/workflows/setup.md` | リポジトリを読んで適切な agent skill を提案・承認後に導入する | `.agents/skills/` とセットアップ報告 |
 | ship | `core/workflows/ship.md` | approval gate付きで一連の流れを実行する | 完了レポート |
 
 ### brainstorm の使い方

@@ -28,6 +28,7 @@ required=(
   "core/workflows/review.md"
   "core/workflows/test.md"
   "core/workflows/compound.md"
+  "core/workflows/setup.md"
   "core/workflows/ship.md"
   "adapters/commands/catalog.json"
   "adapters/codex/prompts/brainstorm.md"
@@ -36,6 +37,7 @@ required=(
   "adapters/codex/prompts/review.md"
   "adapters/codex/prompts/test.md"
   "adapters/codex/prompts/compound.md"
+  "adapters/codex/prompts/setup.md"
   "adapters/codex/prompts/ship.md"
   "adapters/codex/prompts/README.md"
   "adapters/claude/commands/brainstorm.md"
@@ -44,6 +46,7 @@ required=(
   "adapters/claude/commands/review.md"
   "adapters/claude/commands/test.md"
   "adapters/claude/commands/compound.md"
+  "adapters/claude/commands/setup.md"
   "adapters/claude/commands/ship.md"
   "adapters/gemini/commands/brainstorm.toml"
   "adapters/gemini/commands/spec.toml"
@@ -51,6 +54,7 @@ required=(
   "adapters/gemini/commands/review.toml"
   "adapters/gemini/commands/test.toml"
   "adapters/gemini/commands/compound.toml"
+  "adapters/gemini/commands/setup.toml"
   "adapters/gemini/commands/ship.toml"
   "adapters/README.md"
   "adapters/fugu/README.md"
@@ -154,7 +158,7 @@ else
 fi
 
 # Codex prompts: markdown + $ARGUMENTS, harness-aware.
-for cmd in brainstorm spec implement review test compound ship; do
+for cmd in brainstorm spec implement review test compound setup ship; do
   pf="$ROOT/adapters/codex/prompts/$cmd.md"
   if [[ -f "$pf" ]] && grep -q 'ARGUMENTS' "$pf" && grep -q 'active-harness' "$pf"; then
     ok "codex prompt /$cmd is harness-aware and arg-driven"
@@ -164,7 +168,7 @@ for cmd in brainstorm spec implement review test compound ship; do
 done
 
 # Claude commands: markdown + $ARGUMENTS, harness-aware.
-for cmd in brainstorm spec implement review test compound ship; do
+for cmd in brainstorm spec implement review test compound setup ship; do
   pf="$ROOT/adapters/claude/commands/$cmd.md"
   if [[ -f "$pf" ]] && grep -q 'ARGUMENTS' "$pf" && grep -q 'active-harness' "$pf"; then
     ok "claude command /$cmd is harness-aware and arg-driven"
@@ -174,7 +178,7 @@ for cmd in brainstorm spec implement review test compound ship; do
 done
 
 # Gemini commands (also Antigravity): TOML + {{args}}, harness-aware.
-for cmd in brainstorm spec implement review test compound ship; do
+for cmd in brainstorm spec implement review test compound setup ship; do
   pf="$ROOT/adapters/gemini/commands/$cmd.toml"
   if [[ -f "$pf" ]] && grep -q '{{args}}' "$pf" && grep -q 'description' "$pf" && grep -q 'active-harness' "$pf"; then
     ok "gemini command /$cmd is harness-aware and arg-driven"

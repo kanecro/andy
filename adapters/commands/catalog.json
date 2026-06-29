@@ -74,6 +74,20 @@
       "empty_args": ""
     },
     {
+      "name": "setup",
+      "description": "andy setup — inspect the repository and install approved agent skills",
+      "argument_hint": "[search hints]",
+      "workflow": "core/workflows/setup.md",
+      "intro": "You are running the andy `setup` workflow.",
+      "steps_after_load": [
+        "Treat the current working directory as the target development repository. Inspect repository instructions, manifests, tooling, and docs narrowly; do not read secrets or `.env` files.",
+        "Use the input as optional high-priority skill search hints. Search for relevant agent skills with GitHub CLI `gh skill` commands when available.",
+        "Before installing anything, present recommendations and ask the user to approve all, some, or none. After approval, prefer project-local agent-neutral installation under `.agents/skills/` or the closest universal/project-scope GitHub CLI target.",
+        "Verify installed skills and report evidence."
+      ],
+      "empty_args": "If the input is empty, infer skill search queries from the current repository inventory."
+    },
+    {
       "name": "ship",
       "description": "andy ship — run the full lifecycle with approval gates",
       "argument_hint": "[topic | issue #123 | owner/repo#123]",

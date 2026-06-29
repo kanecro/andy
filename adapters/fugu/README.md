@@ -31,6 +31,7 @@ so these slash commands work directly in any codex-fugu session and in any repos
 /implement <change-name>
 /review <change-name>
 /test <change-name>
+/setup
 /ship issue #123
 ```
 
@@ -43,10 +44,13 @@ spec <change-name>
 implement <change-name>
 review <change-name>
 test <change-name>
+setup
 ship issue #123
 ```
 
 For issue commands, prefer `gh issue view` in the target repository. If the issue cannot be fetched, ask for the issue text or the missing access step.
+
+For `/setup`, inspect the target repository, use GitHub CLI `gh skill` commands when available, and ask the user to approve specific skills before installing them into `.agents/skills/` or an equivalent universal/project-scope target.
 
 ## Important
 

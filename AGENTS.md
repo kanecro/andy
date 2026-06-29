@@ -48,6 +48,7 @@ expose one command per workflow in any repository:
 /review
 /test
 /compound
+/setup
 /ship issue #123
 ```
 
@@ -70,6 +71,7 @@ implement <change-name | tasks path>
 review [change-name]
 test [change-name]
 compound [topic]
+setup [search hints]
 ship [topic | issue #123 | owner/repo#123]
 ```
 
@@ -78,8 +80,9 @@ Command handling:
 1. Resolve the andy harness root. Default installed candidates are `${CODEX_HOME:-$HOME/.codex}/active-harness`, then `${CODEX_HOME:-$HOME/.codex}/harnesses/andy`; the resolved directory must contain `AGENTS.md` and `core/workflows/`.
 2. Load `core/workflows/command-router.md`, then load only the workflow runbook needed for the command.
 3. Treat the current working directory as the target development repository. Write generated artifacts to that repository, never to the installed harness directory, unless the user explicitly asks to edit the harness.
-4. For `issue #123`, use the current repository's GitHub issue. For `owner/repo#123`, use that explicit GitHub repository. If available, inspect the issue with `gh issue view` and include title, body, labels, state, URL, and relevant comments as workflow input. If the issue cannot be fetched, ask the user for the issue text or permission/credentials needed to fetch it.
-5. Preserve the approval gates: stop for user approval after `brainstorm` and after `spec` before implementation.
+4. For `setup`, inspect the target repository, search GitHub CLI agent skills, ask before installing, and prefer project-local neutral skills under `.agents/skills/` or an equivalent universal/project-scope target.
+5. For `issue #123`, use the current repository's GitHub issue. For `owner/repo#123`, use that explicit GitHub repository. If available, inspect the issue with `gh issue view` and include title, body, labels, state, URL, and relevant comments as workflow input. If the issue cannot be fetched, ask the user for the issue text or permission/credentials needed to fetch it.
+6. Preserve the approval gates: stop for user approval after `brainstorm` and after `spec` before implementation.
 
 ## Required Core Files
 

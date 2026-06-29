@@ -7,7 +7,7 @@ Adapters explain how different agent runtimes should consume the same andy core 
 ## Workflow commands per runtime
 
 `core/` stays runtime-neutral. Each runtime's `/brainstorm`, `/spec`, `/implement`,
-`/review`, `/test`, `/compound`, `/ship` command is defined in its own adapter, in
+`/review`, `/test`, `/compound`, `/setup`, `/ship` command is defined in its own adapter, in
 that runtime's native command format:
 
 | Runtime | Command files | Installed to | Format |

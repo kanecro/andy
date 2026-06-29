@@ -21,7 +21,7 @@ Optional user-level shim:
 
 Gemini custom commands live in `adapters/gemini/commands/*.toml` and are installed
 into `~/.gemini/commands/` by `./install.sh --with-gemini`. They expose
-`/brainstorm`, `/spec`, `/implement`, `/review`, `/test`, `/compound`, `/ship`.
+`/brainstorm`, `/spec`, `/implement`, `/review`, `/test`, `/compound`, `/setup`, `/ship`.
 Each command uses `{{args}}` and resolves the andy harness root itself, then loads
 the matching `core/workflows/*.md` runbook. The current working directory is always
 the target development repository.

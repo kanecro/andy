@@ -63,6 +63,9 @@ If this project is used with the global andy harness, keep short workflow comman
 brainstorm issue #123
 spec <change-name>
 implement <change-name>
+setup [search hints]
 ```
 
 Do not redefine `core/workflows/` as a project-relative path unless this repository intentionally vendors andy under `./.andy/harness`.
+
+Project-local skills installed by `/setup` should live under `.agents/skills/` unless the user explicitly chooses another supported target.
